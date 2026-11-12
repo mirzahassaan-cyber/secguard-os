@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — SecGuard OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+        if (localStorage.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+        function addRow() {
+            const container = document.getElementById('lead-rows');
+            const row = document.createElement('div');
+            row.className = 'flex space-x-3 mb-3 items-center';
+            row.innerHTML = `
+                <input type="text" name="domain[]" placeholder="clientdomain.com" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white" required>
+                <input type="text" name="name[]" placeholder="Owner Name" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white">
+                <input type="email" name="email[]" placeholder="owner@clientdomain.com" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white">
+                <button type="button" onclick="this.parentElement.remove()" class="bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-800 px-3.5 py-3 rounded-xl hover:bg-red-200 dark:hover:bg-red-900 font-bold text-sm transition">✕</button>
+            `;
+            container.appendChild(row);
+        }
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+        // Real-time report filter/search function
+        function filterReports() {
+            const input = document.getElementById('reportSearch').value.toLowerCase();
+            const rows = document.getElementById('reportsTableBody').getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                const domainText = rows[i].cells[0].textContent.toLowerCase();
+                const fileText = rows[i].cells[1].textContent.toLowerCase();
+                if (domainText.includes(input) || fileText.includes(input)) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen text-gray-900 dark:text-gray-100 p-6 md:p-10 font-sans transition-colors duration-200">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid mb-4"></div>
+        <h2 class="text-xl font-bold text-white">Executing Automated Security Pipeline...</h2>
+        <p class="text-gray-400 text-sm mt-1">Scanning external targets, generating executive PDFs, and dispatching via API.</p>
+    </div>
+
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 rounded-2xl shadow-sm">
+            <div class="flex items-center space-x-4">
+                <div class="bg-blue-600 text-white p-3 rounded-xl text-xl shadow-lg shadow-blue-500/30">🛡️</div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight flex items-center gap-2">
+                        SecGuard OS <span class="text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded-full uppercase font-bold border border-blue-200 dark:border-blue-800">Admin Control</span>
+                    </h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Logged in as Administrator ({{ user.username }})</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-xs font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                    🌓 Theme
+                </button>
+                <a href="/logout" class="bg-red-50 dark:bg-red-950/50 hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-4 py-2 rounded-xl text-xs font-semibold transition">
+                    Sign Out
+                </a>
+            </div>
+        </div>
+
+        <!-- SECTION 1: Target Scan & Outreach Queue -->
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-7 rounded-2xl shadow-sm space-y-6">
+            <div>
+                <h2 class="text-lg font-bold">1. Target Prospects Scan & Outreach Queue</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Run manual scans with multiple rows or upload a bulk CSV file (<code class="text-blue-600 dark:text-blue-400 font-mono">domain,name,email</code>).</p>
+            </div>
+
+            <form action="/scan" method="POST" onsubmit="showLoading()" class="space-y-4">
+                <div id="lead-rows" class="space-y-3">
+                    <div class="flex space-x-3 items-center">
+                        <input type="text" name="domain[]" placeholder="clientdomain.com" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white" required>
+                        <input type="text" name="name[]" placeholder="Owner Name" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white">
+                        <input type="email" name="email[]" placeholder="owner@clientdomain.com" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white">
+                        <button type="button" onclick="addRow()" class="bg-blue-600 text-white px-4 py-3 rounded-xl hover:bg-blue-500 font-bold text-sm transition shadow-md">+</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3.5 rounded-xl hover:from-blue-500 hover:to-indigo-500 transition shadow-lg">
+                    🚀 Launch Manual Scan & Outreach Pipeline
+                </button>
+            </form>
+
+            <hr class="border-gray-200 dark:border-gray-800">
+
+            <div>
+                <h3 class="text-sm font-bold mb-2">📁 Or Bulk Upload via CSV File</h3>
+                <form action="/upload-csv" method="POST" enctype="multipart/form-data" onsubmit="showLoading()" class="flex items-center space-x-3">
+                    <input type="file" name="csv_file" accept=".csv" class="flex-1 p-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500" required>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-5 rounded-xl text-xs transition shadow-md">
+                        Upload & Process Bulk
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- SECTION 2: Client Portal Account Management -->
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-7 rounded-2xl shadow-sm space-y-4">
+            <div>
+                <h2 class="text-lg font-bold">2. Client Portal Account Management</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Issue dedicated login credentials to clients so they can access their specific domain reports.</p>
+            </div>
+            
+            <form action="/admin/create-client" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" name="username" placeholder="Client Username" class="p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white" required>
+                <input type="password" name="password" placeholder="Client Password" class="p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white" required>
+                <input type="text" name="domain" placeholder="Assigned Domain (e.g. target.com)" class="p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white" required>
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-sm transition shadow-md">
+                    Create Client Account
+                </button>
+            </form>
+
+            {% if clients %}
+                <div class="mt-4 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-gray-100 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400">
+                                <th class="p-3 font-semibold">Username</th>
+                                <th class="p-3 font-semibold">Assigned Domain</th>
+                                <th class="p-3 font-semibold">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                            {% for c in clients %}
+                                <tr>
+                                    <td class="p-3 font-bold text-blue-600 dark:text-blue-400">{{ c.username }}</td>
+                                    <td class="p-3 font-mono text-emerald-600 dark:text-emerald-400">{{ c.assigned_domain }}</td>
+                                    <td class="p-3 uppercase text-gray-500 dark:text-gray-400">{{ c.role }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- SECTION 3: Executive Audit Reports Archive (With Search/Filter & Delete) -->
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-7 rounded-2xl shadow-sm space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold">3. Generated Executive Audit Reports Archive</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Filter, download, or delete past security reports.</p>
+                </div>
+                <!-- Search Filter Input -->
+                <input type="text" id="reportSearch" onkeyup="filterReports()" placeholder="🔍 Filter by domain or filename..." class="p-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs text-gray-900 dark:text-white w-full md:w-72 focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+
+            {% if reports %}
+                <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th class="p-4 font-semibold">Target Domain</th>
+                                <th class="p-4 font-semibold">Report Filename</th>
+                                <th class="p-4 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsTableBody" class="divide-y divide-gray-200 dark:divide-gray-800 text-sm">
+                            {% for rep in reports %}
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                                    <td class="p-4 font-semibold text-emerald-600 dark:text-emerald-400">{{ rep.target_domain }}</td>
+                                    <td class="p-4 font-mono text-xs text-blue-600 dark:text-blue-400">{{ rep.filename }}</td>
+                                    <td class="p-4 text-right space-x-2">
+                                        <a href="/download/{{ rep.filename }}" class="bg-gray-100 dark:bg-gray-800 hover:bg-blue-600 hover:text-white text-gray-800 dark:text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition">Download</a>
+                                        <form action="/delete/{{ rep.filename }}" method="POST" class="inline">
+                                            <button type="submit" class="bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 px-3 py-1.5 rounded-xl text-xs font-semibold transition" onclick="return confirm('Delete this report?');">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-gray-400 dark:text-gray-500 text-sm italic">No reports generated yet.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>

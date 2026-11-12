@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecGuard OS — Enterprise Security Outreach Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (localStorage.getItem('theme') === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        });
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function addRow() {
+            const container = document.getElementById('lead-rows');
+            const row = document.createElement('div');
+            row.className = 'flex space-x-3 mb-3 items-center';
+            row.innerHTML = `
+                <input type="text" name="domain[]" placeholder="clientdomain.com" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm text-gray-900 dark:text-white" required>
+                <input type="text" name="name[]" placeholder="Owner Name" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm text-gray-900 dark:text-white">
+                <input type="email" name="email[]" placeholder="owner@clientdomain.com" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm text-gray-900 dark:text-white">
+                <button type="button" onclick="this.parentElement.remove()" class="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-3.5 py-3 rounded-xl hover:bg-red-100 font-bold text-sm transition">✕</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-950 min-h-screen text-gray-900 dark:text-gray-100 p-6 md:p-10 font-sans transition-colors duration-300">
+
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid mb-4"></div>
+        <h2 class="text-xl font-bold text-white">Executing Automated Security Pipeline...</h2>
+        <p class="text-gray-400 text-sm mt-1">Scanning external headers, compiling executive PDFs, and dispatching via API.</p>
+    </div>
+
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6 rounded-2xl shadow-sm">
+            <div class="flex items-center space-x-4">
+                <div class="bg-blue-600 text-white p-3 rounded-xl text-xl shadow-lg shadow-blue-500/30">🛡️</div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight flex items-center gap-2">
+                        SecGuard OS <span class="text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full uppercase font-bold tracking-wider border border-blue-200 dark:border-blue-800">Enterprise SaaS</span>
+                    </h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Automated Attack Surface Auditing & Outreach Intelligence</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <span class="hidden md:inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span> .tech API Active
+                </span>
+
+                <button onclick="toggleTheme()" class="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 p-2.5 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition shadow-sm" title="Toggle Light/Dark Mode">
+                    🌙 / ☀️
+                </button>
+            </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reports Ready</p>
+                    <h3 class="text-2xl font-black mt-1 text-blue-600 dark:text-blue-400">{{ reports|length }}</h3>
+                </div>
+                <div class="p-3 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl">📄</div>
+            </div>
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Outreach Channel</p>
+                    <h3 class="text-2xl font-black mt-1 text-emerald-600 dark:text-emerald-400">API Secure</h3>
+                </div>
+                <div class="p-3 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl">⚡</div>
+            </div>
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5 rounded-2xl shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Engine Status</p>
+                    <h3 class="text-2xl font-black mt-1 text-indigo-600 dark:text-indigo-400">Operational</h3>
+                </div>
+                <div class="p-3 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 rounded-xl">🟢</div>
+            </div>
+        </div>
+
+        <!-- Input & Bulk Upload Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Manual Queue (2 Cols) -->
+            <div class="lg:col-span-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-7 rounded-2xl shadow-sm space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold">Target Prospects Queue</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Input target domains and decision-maker contact details for automated auditing.</p>
+                </div>
+
+                <form action="/scan" method="POST" onsubmit="showLoading()" class="space-y-4">
+                    <div id="lead-rows" class="space-y-3">
+                        <div class="flex space-x-3 items-center">
+                            <input type="text" name="domain[]" placeholder="clientdomain.com" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm text-gray-900 dark:text-white" required>
+                            <input type="text" name="name[]" placeholder="Owner Name" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm text-gray-900 dark:text-white">
+                            <input type="email" name="email[]" placeholder="owner@clientdomain.com" class="flex-1 p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm text-gray-900 dark:text-white">
+                            <button type="button" onclick="addRow()" class="bg-blue-600 text-white px-4 py-3 rounded-xl hover:bg-blue-500 font-bold text-sm transition shadow-md shadow-blue-500/20">+</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-500 hover:to-indigo-500 transition shadow-lg shadow-blue-600/30 transform active:scale-[0.99] flex items-center justify-center space-x-2">
+                        <span>🚀 Launch Manual Scan & Outreach Pipeline</span>
+                    </button>
+                </form>
+
+                <hr class="border-gray-200 dark:border-gray-800">
+
+                <!-- Bulk CSV Upload Form -->
+                <div>
+                    <h3 class="text-md font-bold mb-2">📁 Bulk Upload Leads (CSV)</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Upload a CSV file with headers: <code class="text-blue-500 font-mono">domain,name,email</code></p>
+                    
+                    <form action="/upload-csv" method="POST" enctype="multipart/form-data" onsubmit="showLoading()" class="flex items-center space-x-3">
+                        <input type="file" name="csv_file" accept=".csv" class="flex-1 p-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500" required>
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-5 rounded-xl text-xs transition shadow-md">
+                            Upload & Process Bulk
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Terminal (1 Col) -->
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-7 rounded-2xl shadow-sm flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-bold mb-1">System Terminal</h2>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-4">Real-time background execution log.</p>
+                    
+                    <div class="bg-gray-950 border border-gray-800 rounded-xl p-4 font-mono text-xs text-emerald-400 h-64 overflow-y-auto space-y-2 shadow-inner">
+                        <p class="text-gray-500">[08:00:12] SecGuard OS core initialized...</p>
+                        <p class="text-gray-500">[08:00:12] Connected to Resend API & CSV parser...</p>
+                        <p class="text-emerald-400">[READY] Waiting for prospects queue or CSV file...</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500 dark:text-gray-400 flex justify-between items-center">
+                    <span>Security Engine v2.1</span>
+                    <span class="font-mono text-blue-500">Secure TLS</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Generated Reports Archive Table -->
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-7 rounded-2xl shadow-sm">
+            <h2 class="text-lg font-bold mb-4">Generated Executive Audit Reports</h2>
+            {% if reports %}
+                <div class="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                <th class="p-4 font-semibold">Report Filename</th>
+                                <th class="p-4 font-semibold">Status</th>
+                                <th class="p-4 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800 text-sm">
+                            {% for rep in reports %}
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                                    <td class="p-4 font-mono text-xs text-blue-600 dark:text-blue-400 flex items-center space-x-2">
+                                        <span>📄</span>
+                                        <span>{{ rep }}</span>
+                                    </td>
+                                    <td class="p-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                                            Ready & Dispatched
+                                        </span>
+                                    </td>
+                                    <td class="p-4 text-right space-x-2">
+                                        <a href="/download/{{ rep }}" class="inline-files inline-flex items-center bg-gray-900 dark:bg-gray-800 hover:bg-blue-600 dark:hover:bg-blue-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm">
+                                            Download
+                                        </a>
+                                        <form action="/delete/{{ rep }}" method="POST" class="inline">
+                                            <button type="submit" class="inline-flex items-center bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 hover:bg-red-100 border border-red-200 dark:border-red-900 px-3 py-1.5 rounded-xl text-xs font-semibold transition shadow-sm" onclick="return confirm('Are you sure you want to delete this report?');">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-10 text-center border border-dashed border-gray-300 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-950/50">
+                    <p class="text-gray-500 text-sm italic">No reports generated yet. Input target prospects or upload a CSV file above.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>

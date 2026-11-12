@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — SecGuard OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+        if (localStorage.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen text-gray-900 dark:text-gray-100 flex items-center justify-center p-6 font-sans transition-colors duration-200">
+    
+    <!-- Top Nav Controls (HCI: User Control & Freedom) -->
+    <div class="absolute top-6 left-6">
+        <a href="/" class="text-xs font-semibold text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition flex items-center gap-1">
+            ← Back to Home
+        </a>
+    </div>
+
+    <button onclick="toggleTheme()" class="absolute top-6 right-6 p-2.5 rounded-xl bg-gray-200 dark:bg-gray-900 border border-gray-300 dark:border-gray-800 text-xs font-semibold hover:bg-gray-300 dark:hover:bg-gray-800 transition">
+        🌓 Theme
+    </button>
+
+    <div class="max-w-md w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-8 rounded-2xl shadow-xl space-y-6">
+        <div class="text-center space-y-2">
+            <div class="inline-block bg-blue-600 text-white p-3 rounded-2xl text-2xl shadow-lg shadow-blue-500/30">🛡️</div>
+            <h1 class="text-2xl font-black tracking-tight">SecGuard OS Portal</h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Enterprise Security & Client Access Gateway</p>
+        </div>
+
+        {% if error %}
+            <div class="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-xs p-3 rounded-xl text-center">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form action="/login" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Username</label>
+                <input type="text" name="username" placeholder="admin or client username" class="w-full p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm text-gray-900 dark:text-white" required>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Password</label>
+                <input type="password" name="password" placeholder="••••••••" class="w-full p-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm text-gray-900 dark:text-white" required>
+            </div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30">
+                Sign In to Portal
+            </button>
+        </form>
+        <p class="text-center text-xs text-gray-400 dark:text-gray-500">Default Admin: <code class="text-blue-600 dark:text-blue-400">admin</code> / <code class="text-blue-600 dark:text-blue-400">admin123</code></p>
+    </div>
+</body>
+</html>

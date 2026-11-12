@@ -1,0 +1,7 @@
+flask
+flask-sqlalchemy
+reportlab
+resend
+gunicorn
+psycopg2-binary
+requests
